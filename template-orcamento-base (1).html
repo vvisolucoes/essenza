@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">Orçamento</title>
+
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;600&family=DM+Sans:wght@300;400;500&display=swap" rel="stylesheet">
+
+<script>
+// ============================================================
+//  CONFIG — edite apenas este bloco para personalizar o cliente
+// ============================================================
+const CONFIG = {
+  nomeMarca:  "Essenza",
+  tagline:    "Velas Aromáticas Artesanais",
+  whatsapp:   "5511999999999",   // apenas números, com DDI e DDD
+  msgIntro:   "Olá! Gostaria de fazer um pedido:",
+
+  cores: {
+    bg:       "#F5F0EB",   // fundo geral
+    card:     "#FEFCF8",   // fundo dos cards
+    accent:   "#C9A96E",   // cor de destaque (botões, borda ativa)
+    texto:    "#2C2416",   // texto principal
+    subtexto: "#7A6A52",   // texto secundário
+    borda:    "#E8DFD0",   // bordas e separadores
+  },
+
+  // Ícone/logo: emoji ou URL de imagem
+  logo: "🕯️",
+
+  // Passos do formulário
+  passos: [
+    { id: "produto",   label: "Produto",   icon: "✦" },
+    { id: "tamanho",   label: "Tamanho",   icon: "✦" },
+    { id: "ocasiao",   label: "Ocasião",   icon: "✦" },
+    { id: "contato",   label: "Contato",   icon: "✦" },
+  ],
+
+  // Lista de produtos
+  produtos: [
+    { id: "lavanda",   nome: "Lavanda",      desc: "Relaxante e suave",    icon: "💜" },
+    { id: "baunilha",  nome: "Baunilha",     desc: "Aconchegante e doce",  icon: "🤍" },
+    { id: "eucalipto", nome: "Eucalipto",    desc: "Refrescante e puro",   icon: "💚" },
+    { id: "rosas",     nome: "Rosas",        desc: "Romântico e floral",   icon: "🌹" },
+    { id: "cedro",     nome: "Cedro",        desc: "Amadeirado e elegante",icon: "🪵" },
+    { id: "canela",    nome: "Canela & Cravo", desc: "Quente e especiado", icon: "🍂" },
+  ],
+
+  // Tamanhos com preço
+  tamanhos: [
+    { id: "mini",   nome: "Mini",   dimensao: "5 cm",  peso: "50g",  preco: 29.90 },
+    { id: "media",  nome: "Média",  dimensao: "10 cm", peso: "150g", preco: 59.90 },
+    { id: "grande", nome: "Grande", dimensao: "15 cm", peso: "300g", preco: 89.90 },
+  ],
+
+  // Ocasiões
+  ocasioes: [
+    { id: "presente",    nome: "Presente",        icon: "🎁" },
+    { id: "decoracao",   nome: "Decoração",       icon: "🏠" },
+    { id: "relaxamento", nome: "Relaxamento",     icon: "🛁" },
+    { id: "evento",      nome: "Evento / Festa",  icon: "🎉" },
+    { id: "outro",       nome: "Outro",           icon: "✨" },
+  ],
+
+  // Textos da interface
+  textos: {
+    tituloPasso1: "Qual fragrância você prefere?",
+    tituloPasso2: "Qual tamanho deseja?",
+    tituloPasso3: "Qual a ocasião?",
+    tituloPasso4: "Seus dados para contato",
+    labelNome:    "Seu nome",
+    labelTel:     "WhatsApp (opcional)",
+    labelObs:     "Observações (opcional)",
+    btnFinalizar: "Enviar pedido via WhatsApp",
+    rodape:       "Powered by VVI Soluções",
+  },
+};
+// ============================================================
+//  FIM DO CONFIG — não edite abaixo desta linha
+// ============================================================
+</script>
+
+<style>
+  :root {
+    --bg:       #F5F0EB;
+    --card:     #FEFCF8;
+    --accent:   #C9A96E;
+    --texto:    #2C2416;
+    --subtexto: #7A6A52;
+    --borda:    #E8DFD0;
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    background: var(--bg);
+    color: var(--texto);
+    font-family: 'DM Sans', sans-serif;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 24px 16px 48px;
+  }
+
+  /* ── Header ── */
+  .header {
+    text-align: center;
+    margin-bottom: 32px;
+    animation: fadeUp .5s ease both;
+  }
+  .logo { font-size: 48px; display: block; margin-bottom: 8px; }
+  .header h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: clamp(22px, 5vw, 30px);
+    font-weight: 600;
+    color: var(--texto);
+    letter-spacing: -.3px;
+  }
+  .header p {
+    font-size: 14px;
+    color: var(--subtexto);
+    margin-top: 4px;
+    font-weight: 300;
+    letter-spacing: .3px;
+  }
+
+  /* ── Progress bar ── */
+  .progress-wrap {
+    display: flex;
+    justify-content: center;
+    gap: 8px;
+    margin-bottom: 28px;
+    animation: fadeUp .5s .1s ease both;
+  }
+  .progress-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: var(--borda);
+    transition: background .3s, transform .3s;
+  }
+  .progress-dot.ativo {
+    background: var(--accent);
+    transform: scale(1.3);
+  }
+  .progress-dot.feito { background: var(--accent); opacity: .45; }
+
+  /* ── Card ── */
+  .card {
+    background: var(--card);
+    border: 1px solid var(--borda);
+    border-radius: 18px;
+    padding: 28px 24px;
+    width: 100%;
+    max-width: 480px;
+    box-shadow: 0 4px 24px rgba(44,36,22,.06);
+    animation: fadeUp .4s .15s ease both;
+  }
+
+  .card h2 {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 20px;
+    color: var(--texto);
+  }
+
+  /* ── Opções de seleção ── */
+  .opcoes { display: grid; gap: 10px; }
+  .opcoes.grid2 { grid-template-columns: 1fr 1fr; }
+
+  .opcao {
+    border: 1.5px solid var(--borda);
+    border-radius: 12px;
+    padding: 14px 16px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    background: transparent;
+    text-align: left;
+  }
+  .opcao:hover { border-color: var(--accent); background: rgba(201,169,110,.06); }
+  .opcao.selecionado {
+    border-color: var(--accent);
+    background: rgba(201,169,110,.12);
+    transform: scale(1.01);
+  }
+  .opcao-icon { font-size: 22px; flex-shrink: 0; }
+  .opcao-info { flex: 1; }
+  .opcao-nome { font-size: 14px; font-weight: 500; color: var(--texto); }
+  .opcao-desc { font-size: 12px; color: var(--subtexto); margin-top: 2px; font-weight: 300; }
+
+  /* ── Cards de tamanho ── */
+  .tamanhos-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .tamanho-card {
+    border: 1.5px solid var(--borda);
+    border-radius: 12px;
+    padding: 16px 10px;
+    cursor: pointer;
+    transition: border-color .2s, background .2s, transform .15s;
+    text-align: center;
+    background: transparent;
+  }
+  .tamanho-card:hover { border-color: var(--accent); background: rgba(201,169,110,.06); }
+  .tamanho-card.selecionado {
+    border-color: var(--accent);
+    background: rgba(201,169,110,.12);
+    transform: scale(1.02);
+  }
+  .tamanho-visual {
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    height: 44px;
+    margin-bottom: 8px;
+  }
+  .tamanho-vela {
+    background: linear-gradient(to bottom, var(--accent), #a07840);
+    border-radius: 3px 3px 2px 2px;
+    width: 18px;
+    opacity: .85;
+  }
+  .tamanho-nome { font-size: 13px; font-weight: 500; color: var(--texto); }
+  .tamanho-dim  { font-size: 11px; color: var(--subtexto); margin-top: 2px; font-weight: 300; }
+  .tamanho-preco { font-size: 13px; font-weight: 500; color: var(--accent); margin-top: 6px; }
+
+  /* ── Formulário de contato ── */
+  .campo { margin-bottom: 16px; }
+  .campo label { display: block; font-size: 13px; color: var(--subtexto); margin-bottom: 6px; font-weight: 400; }
+  .campo input, .campo textarea {
+    width: 100%;
+    border: 1.5px solid var(--borda);
+    border-radius: 10px;
+    padding: 12px 14px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    background: var(--bg);
+    color: var(--texto);
+    transition: border-color .2s;
+    outline: none;
+    resize: none;
+  }
+  .campo input:focus, .campo textarea:focus { border-color: var(--accent); }
+
+  /* ── Resumo do pedido ── */
+  .resumo {
+    background: rgba(201,169,110,.08);
+    border: 1px solid rgba(201,169,110,.25);
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 20px;
+    font-size: 13px;
+    color: var(--subtexto);
+    line-height: 1.7;
+  }
+  .resumo strong { color: var(--texto); font-weight: 500; }
+
+  /* ── Botões ── */
+  .btn-primario {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    width: 100%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    border-radius: 12px;
+    padding: 15px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: opacity .2s, transform .15s;
+    text-decoration: none;
+  }
+  .btn-primario:hover { opacity: .9; transform: translateY(-1px); }
+  .btn-primario:active { transform: translateY(0); }
+
+  .btn-voltar {
+    background: none;
+    border: none;
+    color: var(--subtexto);
+    font-family: 'DM Sans', sans-serif;
+    font-size: 13px;
+    cursor: pointer;
+    padding: 10px 0 0;
+    display: block;
+    margin: 0 auto;
+    text-align: center;
+    transition: color .2s;
+  }
+  .btn-voltar:hover { color: var(--texto); }
+
+  /* ── Rodapé ── */
+  .rodape {
+    margin-top: 28px;
+    font-size: 11px;
+    color: var(--subtexto);
+    opacity: .6;
+    text-align: center;
+    letter-spacing: .3px;
+  }
+
+  /* ── Animação ── */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(14px); }
+    to   { opacity: 1; transform: translateY(0); }
+  }
+  .passo { animation: fadeUp .35s ease both; }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <span class="logo" id="logo"></span>
+  <h1 id="nome-marca"></h1>
+  <p id="tagline"></p>
+</div>
+
+<div class="progress-wrap" id="progress"></div>
+
+<div class="card" id="card-conteudo"></div>
+
+<div class="rodape" id="rodape"></div>
+
+<script>
+// ── Aplica CSS vars do CONFIG ──────────────────────────────
+(function aplicarCores() {
+  const r = document.documentElement.style;
+  const c = CONFIG.cores;
+  r.setProperty('--bg',       c.bg);
+  r.setProperty('--card',     c.card);
+  r.setProperty('--accent',   c.accent);
+  r.setProperty('--texto',    c.texto);
+  r.setProperty('--subtexto', c.subtexto);
+  r.setProperty('--borda',    c.borda);
+})();
+
+// ── Preenche header ────────────────────────────────────────
+document.getElementById('page-title').textContent = CONFIG.nomeMarca + ' — Pedido';
+document.getElementById('logo').textContent        = CONFIG.logo;
+document.getElementById('nome-marca').textContent  = CONFIG.nomeMarca;
+document.getElementById('tagline').textContent     = CONFIG.tagline;
+document.getElementById('rodape').textContent      = CONFIG.textos.rodape;
+
+// ── Estado ────────────────────────────────────────────────
+const estado = { passo: 0, produto: null, tamanho: null, ocasiao: null };
+
+// ── Progress dots ─────────────────────────────────────────
+function renderProgress() {
+  const wrap = document.getElementById('progress');
+  wrap.innerHTML = '';
+  CONFIG.passos.forEach((_, i) => {
+    const d = document.createElement('div');
+    d.className = 'progress-dot' +
+      (i === estado.passo ? ' ativo' : i < estado.passo ? ' feito' : '');
+    wrap.appendChild(d);
+  });
+}
+
+// ── Passos ────────────────────────────────────────────────
+function renderPasso() {
+  renderProgress();
+  const c = document.getElementById('card-conteudo');
+  c.innerHTML = '';
+  const div = document.createElement('div');
+  div.className = 'passo';
+
+  if (estado.passo === 0) renderProdutos(div);
+  else if (estado.passo === 1) renderTamanhos(div);
+  else if (estado.passo === 2) renderOcasioes(div);
+  else renderContato(div);
+
+  c.appendChild(div);
+}
+
+function renderProdutos(div) {
+  div.innerHTML = `<h2>${CONFIG.textos.tituloPasso1}</h2>`;
+  const grid = document.createElement('div');
+  grid.className = 'opcoes grid2';
+  CONFIG.produtos.forEach(p => {
+    const el = document.createElement('div');
+    el.className = 'opcao' + (estado.produto === p.id ? ' selecionado' : '');
+    el.innerHTML = `<span class="opcao-icon">${p.icon}</span>
+      <div class="opcao-info">
+        <div class="opcao-nome">${p.nome}</div>
+        <div class="opcao-desc">${p.desc}</div>
+      </div>`;
+    el.onclick = () => { estado.produto = p.id; estado.passo = 1; renderPasso(); };
+    grid.appendChild(el);
+  });
+  div.appendChild(grid);
+}
+
+function renderTamanhos(div) {
+  div.innerHTML = `<h2>${CONFIG.textos.tituloPasso2}</h2>`;
+  const grid = document.createElement('div');
+  grid.className = 'tamanhos-grid';
+  const alturas = { mini: 22, media: 34, grande: 44 };
+  CONFIG.tamanhos.forEach(t => {
+    const el = document.createElement('div');
+    el.className = 'tamanho-card' + (estado.tamanho === t.id ? ' selecionado' : '');
+    const h = alturas[t.id] || 32;
+    el.innerHTML = `
+      <div class="tamanho-visual">
+        <div class="tamanho-vela" style="height:${h}px"></div>
+      </div>
+      <div class="tamanho-nome">${t.nome}</div>
+      <div class="tamanho-dim">${t.dimensao} · ${t.peso}</div>
+      <div class="tamanho-preco">R$ ${t.preco.toFixed(2).replace('.', ',')}</div>`;
+    el.onclick = () => { estado.tamanho = t.id; estado.passo = 2; renderPasso(); };
+    grid.appendChild(el);
+  });
+  div.appendChild(grid);
+  div.appendChild(btnVoltar());
+}
+
+function renderOcasioes(div) {
+  div.innerHTML = `<h2>${CONFIG.textos.tituloPasso3}</h2>`;
+  const grid = document.createElement('div');
+  grid.className = 'opcoes';
+  CONFIG.ocasioes.forEach(o => {
+    const el = document.createElement('div');
+    el.className = 'opcao' + (estado.ocasiao === o.id ? ' selecionado' : '');
+    el.innerHTML = `<span class="opcao-icon">${o.icon}</span>
+      <div class="opcao-info"><div class="opcao-nome">${o.nome}</div></div>`;
+    el.onclick = () => { estado.ocasiao = o.id; estado.passo = 3; renderPasso(); };
+    grid.appendChild(el);
+  });
+  div.appendChild(grid);
+  div.appendChild(btnVoltar());
+}
+
+function renderContato(div) {
+  const prod  = CONFIG.produtos.find(p => p.id === estado.produto);
+  const tam   = CONFIG.tamanhos.find(t => t.id === estado.tamanho);
+  const ocas  = CONFIG.ocasioes.find(o => o.id === estado.ocasiao);
+
+  div.innerHTML = `<h2>${CONFIG.textos.tituloPasso4}</h2>
+    <div class="resumo">
+      <strong>Resumo do pedido</strong><br>
+      Fragrância: ${prod?.nome || '-'}<br>
+      Tamanho: ${tam?.nome || '-'} (${tam?.dimensao || '-'})<br>
+      Ocasião: ${ocas?.nome || '-'}<br>
+      Valor: R$ ${tam ? tam.preco.toFixed(2).replace('.', ',') : '-'}
+    </div>
+    <div class="campo">
+      <label>${CONFIG.textos.labelNome} *</label>
+      <input type="text" id="inp-nome" placeholder="Seu nome completo">
+    </div>
+    <div class="campo">
+      <label>${CONFIG.textos.labelTel}</label>
+      <input type="tel" id="inp-tel" placeholder="(11) 9 0000-0000">
+    </div>
+    <div class="campo">
+      <label>${CONFIG.textos.labelObs}</label>
+      <textarea id="inp-obs" rows="3" placeholder="Embalagem para presente, data de entrega desejada..."></textarea>
+    </div>`;
+
+  const btn = document.createElement('a');
+  btn.className = 'btn-primario';
+  btn.innerHTML = `<svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor">
+    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/>
+    <path d="M12 0C5.373 0 0 5.373 0 12c0 2.625.846 5.059 2.284 7.034L.789 23.492a.5.5 0 00.627.616l4.584-1.296A11.95 11.95 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-2.319 0-4.476-.68-6.29-1.846l-.188-.12-3.016.852.684-2.927-.142-.2A9.95 9.95 0 012 12C2 6.486 6.486 2 12 2s10 4.486 10 10-4.486 10-10 10z"/>
+  </svg> ${CONFIG.textos.btnFinalizar}`;
+
+  btn.onclick = (e) => {
+    e.preventDefault();
+    const nome = document.getElementById('inp-nome').value.trim();
+    if (!nome) { document.getElementById('inp-nome').style.borderColor = CONFIG.cores.accent; return; }
+    const tel = document.getElementById('inp-tel').value.trim();
+    const obs = document.getElementById('inp-obs').value.trim();
+    let msg = `${CONFIG.msgIntro}\n\n`;
+    msg += `👤 Nome: ${nome}\n`;
+    msg += `🕯️ Fragrância: ${prod?.nome || '-'}\n`;
+    msg += `📏 Tamanho: ${tam?.nome || '-'} (${tam?.dimensao || '-'} · ${tam?.peso || '-'})\n`;
+    msg += `🎁 Ocasião: ${ocas?.nome || '-'}\n`;
+    msg += `💰 Valor: R$ ${tam ? tam.preco.toFixed(2).replace('.', ',') : '-'}\n`;
+    if (tel) msg += `📱 Tel: ${tel}\n`;
+    if (obs) msg += `📝 Obs: ${obs}`;
+    window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
+  div.appendChild(btn);
+  div.appendChild(btnVoltar());
+}
+
+function btnVoltar() {
+  const b = document.createElement('button');
+  b.className = 'btn-voltar';
+  b.textContent = '← Voltar';
+  b.onclick = () => { if (estado.passo > 0) { estado.passo--; renderPasso(); } };
+  return b;
+}
+
+// ── Init ──────────────────────────────────────────────────
+renderPasso();
+</script>
+</body>
+</html>
